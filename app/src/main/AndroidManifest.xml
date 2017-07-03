@@ -9,19 +9,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.example.dmko.taskmanager.MainActivity">
+        <activity
+            android:name="com.example.dmko.taskmanager.activity.AddTaskActivity"
+            android:parentActivityName=".activity.ListTasksActivity" />
+        <activity android:name="com.example.dmko.taskmanager.activity.ListTasksActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.dmko.taskmanager.ListDataActivity"
-            android:parentActivityName="com.example.dmko.taskmanager.MainActivity" />
-        <activity
-            android:name="com.example.dmko.taskmanager.EditItemActivity"
-            android:parentActivityName="com.example.dmko.taskmanager.ListDataActivity" />
+            android:name="com.example.dmko.taskmanager.activity.EditTaskActivity"
+            android:parentActivityName="com.example.dmko.taskmanager.activity.ListTasksActivity" />
     </application>
 
 </manifest>

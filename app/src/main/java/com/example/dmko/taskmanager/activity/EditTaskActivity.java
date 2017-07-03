@@ -1,4 +1,4 @@
-package com.example.dmko.taskmanager;
+package com.example.dmko.taskmanager.activity;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -8,12 +8,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class EditItemActivity extends AppCompatActivity {
+import com.example.dmko.taskmanager.Entity.Task;
+import com.example.dmko.taskmanager.R;
+import com.example.dmko.taskmanager.dao.SQLiteTaskDao;
+import com.example.dmko.taskmanager.dao.TaskDao;
+
+public class EditTaskActivity extends AppCompatActivity {
     private EditText editText;
     private Button saveBtn, deleteBtn;
-    private DatabaseHelper databaseHelper;
-    private String name;
-    private int id;
+    private TaskDao taskDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,19 +25,18 @@ public class EditItemActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.editText);
         saveBtn = (Button) findViewById(R.id.saveBtn);
         deleteBtn = (Button) findViewById(R.id.deleteBtn);
-        databaseHelper = new DatabaseHelper(this);
-        Intent receivedIntent = getIntent();
-        name = receivedIntent.getStringExtra("name");
-        id = receivedIntent.getIntExtra("id", -1);
+        taskDao = new SQLiteTaskDao(this);
 
-        editText.setText(name);
+        Intent receivedIntent = getIntent();
+        final Task task = (Task) receivedIntent.getSerializableExtra("task");
+        setFields(task);
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                databaseHelper.deleteItem(id);
+                taskDao.deleteTaskById(task.getId());
                 toastMessage("Item has been deleted");
-                Intent intent = new Intent(EditItemActivity.this, ListDataActivity.class);
+                Intent intent = new Intent(EditTaskActivity.this, ListTasksActivity.class);
                 startActivity(intent);
             }
         });
@@ -42,14 +44,19 @@ public class EditItemActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String item = editText.getText().toString();
-                if(!item.isEmpty()) {
-                    databaseHelper.updateItem(id, item);
+                String taskName = editText.getText().toString();
+                Task newTask = new Task(taskName);
+                if(!newTask.getName().isEmpty()) {
+                    taskDao.updateTaskById(task.getId(), newTask);
                     toastMessage("Item has been updated");
                 }
                 else toastMessage("Put something in the text field you fucking retard");
             }
         });
+    }
+
+    private void setFields(Task task){
+        editText.setText(task.getName());
     }
 
     private void toastMessage(String message) {
