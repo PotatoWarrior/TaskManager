@@ -6,20 +6,21 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.dmko.taskmanager.Entity.Task;
+import com.example.dmko.taskmanager.entity.Task;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SQLiteTaskDao extends SQLiteOpenHelper implements TaskDao {
-    public static final String TABLE_NAME = "people_table";
+    public static final String TABLE_NAME = "task_table";
     public static final String COL0 = "ID";
     public static final String COL1 = "name";
-    private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + COL0 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL1 + " TEXT)";
-    private static final String DELETE_TABLE = "DROP IF TABLE EXISTS " + TABLE_NAME;
+    public static final String COL2 = "description";
+    private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + COL0 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL1 + " TEXT, " + COL2 + " TEXT)";
+    private static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
     public SQLiteTaskDao(Context context) {
-        super(context, TABLE_NAME, null, 1);
+        super(context, TABLE_NAME, null, 3);
     }
 
     @Override
@@ -35,6 +36,7 @@ public class SQLiteTaskDao extends SQLiteOpenHelper implements TaskDao {
     public void addTask(Task task) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL1, task.getName());
+        contentValues.put(COL2, task.getDescription());
         this.getWritableDatabase().insert(TABLE_NAME, null, contentValues);
     }
 
@@ -45,30 +47,16 @@ public class SQLiteTaskDao extends SQLiteOpenHelper implements TaskDao {
             Task task = new Task();
             task.setId(cursor.getInt(0));
             task.setName(cursor.getString(1));
+            task.setDescription(cursor.getString(2));
             result.add(task);
         }
         return result;
     }
 
-    @Override
-    public List<String> getAllTaskNames() {
-        Cursor cursor = this.getWritableDatabase().rawQuery("SELECT * FROM " + TABLE_NAME, null);
-        List<String> result = new ArrayList<>(cursor.getCount());
-        while (cursor.moveToNext()) {
-            result.add(cursor.getString(1));
-        }
-        return result;
-    }
-
-    public int getTaskIdByName(String name) {
-        Cursor cursor = this.getWritableDatabase().rawQuery("SELECT " + COL0 + " FROM " + TABLE_NAME + " WHERE " + COL1 + " = '" + name + "'", null);
-        cursor.moveToNext();
-        return cursor.getInt(0);
-    }
-
     public void updateTaskById(int id, Task newTask) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL1, newTask.getName());
+        contentValues.put(COL2, newTask.getDescription());
         this.getWritableDatabase().update(TABLE_NAME, contentValues, COL0 + " = " + id, null);
     }
 

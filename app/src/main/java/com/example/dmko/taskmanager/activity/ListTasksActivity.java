@@ -5,12 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.example.dmko.taskmanager.Entity.Task;
+import com.example.dmko.taskmanager.adapter.TaskAdapter;
+import com.example.dmko.taskmanager.entity.Task;
 import com.example.dmko.taskmanager.R;
 import com.example.dmko.taskmanager.dao.SQLiteTaskDao;
 import com.example.dmko.taskmanager.dao.TaskDao;
@@ -23,19 +22,16 @@ public class ListTasksActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_data);
+        setContentView(R.layout.activity_list_tasks);
         listView = (ListView) findViewById(R.id.listView);
         addTaskButton = (ImageButton) findViewById(R.id.addTaskBtn);
         taskDao = new SQLiteTaskDao(this);
-        //List<Task> tasks = taskDao.getAllTasks();
-        ListAdapter listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, taskDao.getAllTaskNames());
-        listView.setAdapter(listAdapter);
+        TaskAdapter taskAdapter = new TaskAdapter(this, taskDao.getAllTasks());
+        listView.setAdapter(taskAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String taskName = parent.getItemAtPosition(position).toString();
-                int taskId = taskDao.getTaskIdByName(taskName);
-                Task task = new Task(taskId, taskName);
+                Task task = (Task) parent.getItemAtPosition(position);
                 Intent intent = new Intent(ListTasksActivity.this, EditTaskActivity.class);
                 intent.putExtra("task", task);
                 startActivity(intent);
